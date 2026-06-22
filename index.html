@@ -38,8 +38,8 @@
     <div class="user-selector-box">
         👤 操作するユーザー: 
         <select id="userSelect" class="user-select" onchange="changeUser()">
-            <option value="user1">ユーザー 1</option>
-            <option value="user2">ユーザー 2</option>
+            <option value="user1">ヤス</option>
+            <option value="user2">りか</option>
         </select>
     </div>
 
@@ -56,7 +56,7 @@
     </div>
 
     <div class="section gacha-box">
-        <button id="gachaBtn" class="gacha-btn" onclick="drawGacha()">🎰 ガチャを回す (消費: 30個)</button>
+        <button id="gachaBtn" class="gacha-btn" onclick="drawGacha()">🎰 ガチャを回す (消費: 10個)</button>
         <div id="gachaResult" class="gacha-result"></div>
     </div>
 
@@ -160,7 +160,7 @@
 
     // ガチャ実行処理
     function drawGacha() {
-        if (currentStones < 30) return;
+        if (currentStones < 10) return;
         const btn = document.getElementById('gachaBtn');
         btn.disabled = true;
         document.getElementById('gachaResult').innerText = "🎰 ガチャを回しています...";
@@ -229,7 +229,7 @@
 
     function checkGachaButton() {
         const btn = document.getElementById('gachaBtn');
-        btn.disabled = currentStones < 30;
+        btn.disabled = currentStones < 10;
     }
 </script>
 
