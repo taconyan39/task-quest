@@ -3,235 +3,301 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ご褒美ガチャ（マルチ版）</title>
+    <title>タスクエ - タスクをゲーム化するアプリ -</title>
     <style>
-        body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #4a90e2; margin-bottom: 10px; }
+        :root {
+            --primary: #4a90e2;
+            --success: #2ea44f;
+            --danger: #cb2431;
+            --bg: #f6f8fa;
+            --card-bg: #ffffff;
+            --text: #24292e;
+            --border: #e1e4e6;
+            --rarity-ur: #ff3b30;
+            --rarity-ssr: #ffcc00;
+            --rarity-sr: #af52de;
+            --rarity-r: #007aff;
+            --rarity-n: #8e8e93;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 20px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 600px; }
+        h1 { text-align: center; color: var(--primary); font-size: 28px; margin-bottom: 5px; font-weight: bold; }
+        .subtitle { text-align: center; color: #666; font-size: 14px; margin-bottom: 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .user-selector select { padding: 6px 12px; font-size: 16px; border-radius: 6px; border: 1px solid var(--border); }
+        .stone-display { font-size: 20px; font-weight: bold; color: #ff9500; }
+        .btn { padding: 8px 16px; font-size: 14px; font-weight: bold; border-radius: 6px; border: 1px solid transparent; cursor: pointer; text-align: center; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-success { background-color: var(--success); color: white; width: 100%; font-size: 18px; padding: 12px; border-radius: 6px 6px 0 0; }
+        .btn-danger { background-color: var(--danger); color: white; }
         
-        /* 👥 ユーザー選択エリアのスタイル */
-        .user-selector-box { background: #fff; padding: 10px; border-radius: 8px; border: 2px solid #4a90e2; text-align: center; margin-bottom: 20px; }
-        .user-select { font-size: 1.1rem; padding: 6px 12px; border-radius: 6px; border: 1px solid #ccc; cursor: pointer; font-weight: bold; }
-        
-        .section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #e0e0e0; }
-        .status-box { background: #eef5fc; padding: 15px; border-radius: 8px; text-align: center; font-size: 1.2rem; font-weight: bold; }
-        .stone-count { color: #f5a623; font-size: 1.8rem; }
-        button { background-color: #4a90e2; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9rem; }
-        button:hover { opacity: 0.9; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .item-list { list-style: none; padding: 0; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #f0f0f0; }
-        .gacha-box { text-align: center; padding: 20px; }
-        .gacha-btn { background-color: #ff5a5f; font-size: 1.2rem; padding: 15px 30px; border-radius: 30px; }
-        .gacha-result { margin-top: 15px; font-weight: bold; font-size: 1.1rem; color: #2bc480; min-height: 24px; }
-        .badge { padding: 3px 6px; border-radius: 4px; color: white; font-size: 0.8rem; margin-right: 5px; }
-        .UR { background-color: #ff007f; } .SSR { background-color: #ffaa00; }
-        .SR { background-color: #9b51e0; } .R { background-color: #2f80ed; } .N { background-color: #828282; }
-        .loading { text-align: center; color: #888; font-style: italic; }
+        /* 🎰 確率表記用の特別スタイルですわ！ */
+        .probability-table { width: 100%; background: #f8f9fa; border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; padding: 10px; box-sizing: border-box; font-size: 12px; display: flex; justify-content: space-around; text-align: center; }
+        .prob-item { font-weight: bold; }
+
+        .list-item { padding: 12px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .list-item:last-child { border-bottom: none; }
+        .status-badge { padding: 2px 8px; font-size: 12px; font-weight: bold; border-radius: 2px; color: white; }
+        .badge-done { background-color: var(--success); }
+        .rarity { font-weight: bold; margin-right: 8px; }
+        .UR { color: var(--rarity-ur); } .SSR { color: var(--rarity-ssr); } .SR { color: var(--rarity-sr); } .R { color: var(--rarity-r); } .N { color: var(--rarity-n); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+        .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 6px; }
+        .hr-divider { border: 0; height: 1px; background: var(--border); margin: 24px 0; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>ご褒美ガチャ（仮）</h1>
+    <h1>⚔️ タスクエ</h1>
+    <div class="subtitle">- TaskQuest -</div>
 
-    <div class="user-selector-box">
-        👤 操作するユーザー: 
-        <select id="userSelect" class="user-select" onchange="changeUser()">
-            <option value="user1">ヤス</option>
-            <option value="user2">りか</option>
-        </select>
+    <div class="card flex-between">
+        <div class="user-selector">
+            <select id="userSelect" onchange="loadData()">
+                <option value="user1">ユーザー 1</option>
+                <option value="user2">ユーザー 2</option>
+            </select>
+        </div>
+        <div class="stone-display">💎 所持石: <span id="stoneCount">0</span> 個</div>
     </div>
 
-    <div class="section status-box">
-        💎 所持石数: <span id="stoneCount" class="stone-count">0</span> 個
-        <div style="margin-top: 10px;">
-            <button onclick="resetDailyTasks()">📅 毎日タスクを一括リセット</button>
+    <div style="margin-bottom: 16px;">
+        <button id="gachaBtn" class="btn btn-success" onclick="drawGacha()">🎰 ガチャを回す (消費: 10個)</button>
+        <div class="probability-table">
+            <div class="prob-item"><span class="UR">[UR]</span> 0.1%</div>
+            <div class="prob-item"><span class="SSR">[SSR]</span> 2.9%</div>
+            <div class="prob-item"><span class="SR">[SR]</span> 10%</div>
+            <div class="prob-item"><span class="R">[R]</span> 37%</div>
+            <div class="prob-item"><span class="N">[N]</span> 50%</div>
         </div>
     </div>
 
-    <div class="section">
-        <h3>📋 タスク一覧</h3>
-        <ul id="taskList" class="item-list"><li class="loading">データを読み込み中...</li></ul>
+    <div class="card">
+        <h3>🎯 クエスト一覧（タスク）</h3>
+        <div id="taskList">データを読み込み中...</div>
     </div>
 
-    <div class="section gacha-box">
-        <button id="gachaBtn" class="gacha-btn" onclick="drawGacha()">🎰 ガチャを回す (消費: 10個)</button>
-        <div id="gachaResult" class="gacha-result"></div>
+    <div class="card">
+        <h3>🎒 獲得したご褒美（ストック）</h3>
+        <div id="rewardList">データを読み込み中...</div>
     </div>
 
-    <div class="section">
-        <h3>🎁 ご褒美ストック</h3>
-        <ul id="rewardList" class="item-list"><li class="loading">データを読み込み中...</li></ul>
+    <hr class="hr-divider">
+
+    <div class="card" style="background-color: #f1f3f5;">
+        <h3 style="margin-top: 0;">⚙️ タスクエ管理画面</h3>
+        <button class="btn btn-danger" style="width: 100%; margin-bottom: 16px;" onclick="resetDaily()">☀️ 毎日のクエストを未完了にリセットする</button>
+        
+        <h4 style="margin-bottom: 8px;">➕ クエストの新規追加</h4>
+        <div class="form-group">
+            <label>クエスト名（タスク名）</label>
+            <input type="text" id="newTaskName" placeholder="例: 読書を30分する">
+        </div>
+        <div class="flex-between" style="gap: 10px; margin-bottom: 12px;">
+            <div class="form-group" style="flex: 1;">
+                <label>獲得石数</label>
+                <input type="number" id="newTaskReward" value="3">
+            </div>
+            <div class="form-group" style="flex: 1;">
+                <label>タイプ</label>
+                <select id="newTaskType">
+                    <option value="毎日">毎日（リセット対象）</option>
+                    <option value="単発">単発（1回きり）</option>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary" style="width: 100%; margin-bottom: 20px;" onclick="addTask()">🎯 クエストを追加する</button>
+
+        <h4 style="margin-bottom: 8px;">➕ ご褒美（景品）の新規追加</h4>
+        <div class="form-group">
+            <label>ご褒美の名前</label>
+            <input type="text" id="newRewardName" placeholder="例: 高級アイスを食べる">
+        </div>
+        <div class="form-group">
+            <label>設定レアリティ</label>
+            <select id="newRewardRarity">
+                <option value="N">N (50.0%) - 日常の小さな癒やし</option>
+                <option value="R">R (37.0%) - ちょっと嬉しいご褒美</option>
+                <option value="SR">SR (10.0%) - 豪華なご褒美</option>
+                <option value="SSR">SSR (2.9%) - 超豪華なご褒美</option>
+                <option value="UR">UR (0.1%) - 奇跡の贅沢</option>
+            </select>
+        </div>
+        <button class="btn btn-primary" style="width: 100%;" onclick="addReward()">🎁 ご褒美を追加する</button>
     </div>
 </div>
 
 <script>
-    // ⚠️【重要】ここにコピーしたGASのウェブアプリURLを貼り付けてください！
+    // 🔗 あなたのGASウェブアプリのURLをここに貼り付けてちょうだい！
     const GAS_URL = "https://script.google.com/macros/s/AKfycbyuGBlVKZA88S-7ta0qdCMLcVOo96ZJmr3btwRWQrJTIXrpLXuOOu29-nIOtE8sF0ClDg/exec";
 
-    let currentStones = 0;
-    let currentUser = "user1"; // 現在選択されているユーザー（初期値）
-
-    // 起動時にデータを取得する
-    window.onload = function() {
-        fetchAppData();
-    };
-
-    // ユーザーが切り替わったときの処理
-    function changeUser() {
-        currentUser = document.getElementById('userSelect').value;
-        // 読み込み中表示にする
-        document.getElementById('taskList').innerHTML = '<li class="loading">データを読み込み中...</li>';
-        document.getElementById('rewardList').innerHTML = '<li class="loading">データを読み込み中...</li>';
-        document.getElementById('gachaResult').innerText = "";
-        fetchAppData();
+    function getCurrentUser() {
+        return document.getElementById("userSelect").value;
     }
 
-    // GASと通信してデータを最新にする関数
-    function fetchAppData() {
-        fetch(GAS_URL, {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "getData", user: currentUser }) // ★userを一緒に送る
-        })
-        .then(res => res.json())
-        .then(data => {
-            currentStones = data.stones;
-            document.getElementById('stoneCount').innerText = currentStones;
+    // データ読み込み
+    async function loadData() {
+        const user = getCurrentUser();
+        document.getElementById("taskList").innerText = "データを読み込み中...";
+        document.getElementById("rewardList").innerText = "データを読み込み中...";
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "getData", user: user })
+            });
+            const data = await response.json();
             
-            // タスク一覧の描画
-            const taskList = document.getElementById('taskList');
-            taskList.innerHTML = '';
-            data.tasks.forEach(task => {
-                const li = document.createElement('li');
-                li.className = 'item-row';
-                const isCompleted = task['ステータス'] === '完了';
-                li.innerHTML = `
-                    <span>${task['タスク名']} (💎${task['獲得石数']}個) [${task['タイプ']}]</span>
-                    <button onclick="completeTask(${task['タスクID']}, ${task['獲得石数']}, this)" ${isCompleted ? 'disabled' : ''}>
-                        ${isCompleted ? '完了済' : '完了'}
-                    </button>
-                `;
-                taskList.appendChild(li);
-            });
-
-            // ご褒美ストックの描画
-            const rewardList = document.getElementById('rewardList');
-            rewardList.innerHTML = '';
-            data.rewards.forEach(reward => {
-                const li = document.createElement('li');
-                li.className = 'item-row';
-                const stock = reward['ストック数'] || 0;
-                li.innerHTML = `
-                    <span><span class="badge ${reward['レアリティ']}">${reward['レアリティ']}</span>${reward['ご褒美名']}</span>
+            document.getElementById("stoneCount").innerText = data.stones;
+            
+            // タスク描画
+            let taskHtml = "";
+            data.tasks.forEach(t => {
+                const isDone = t.ステータス === "完了";
+                taskHtml += `<div class="list-item">
                     <div>
-                        <span>ストック: ${stock}</span>
-                        <button onclick="useReward(${reward['ご褒美ID']})" ${stock === 0 ? 'disabled' : ''}>消費</button>
-                    </div>
-                `;
-                rewardList.appendChild(li);
+                        <strong>${t.タスク名}</strong> 
+                        <span style="font-size:12px; color:#666;">(${t.タイプ} / 💎${t.獲得石数}個)</span>
+                    </div>`;
+                if (isDone) {
+                    taskHtml += `<span class="status-badge badge-done">完了</span>`;
+                } else {
+                    taskHtml += `<button class="btn btn-primary" onclick="completeTask(${t.タスクID}, ${t.獲得石数})">完了する</button>`;
+                }
+                taskHtml += `</div>`;
             });
+            document.getElementById("taskList").innerHTML = taskHtml || "クエストが登録されていません";
 
-            checkGachaButton();
-        })
-        .catch(err => alert("データ取得エラー: " + err));
+            // ご褒美描画
+            let rewardHtml = "";
+            data.rewards.forEach(r => {
+                if (r.ストック数 > 0) {
+                    rewardHtml += `<div class="list-item">
+                        <div>
+                            <span class="rarity ${r.レアリティ}">[${r.レアリティ}]</span>
+                            <strong>${r.ご褒美名}</strong> 
+                            <span style="color:var(--success); font-weight:bold;"> × ${r.ストック数}</span>
+                        </div>
+                        <button class="btn btn-danger" onclick="useReward(${r.ご褒美ID})">使う</button>
+                    </div>`;
+                }
+            });
+            document.getElementById("rewardList").innerHTML = rewardHtml || "まだ当たったご褒美のストックはありません。ガチャを回しましょう！";
+
+        } catch (error) {
+            alert("データの読み込みに失敗しましたわ！URLやGASのデプロイを確認してちょうだい。");
+        }
     }
 
     // タスク完了処理
-    function completeTask(taskId, stoneReward, button) {
-        button.disabled = true;
-        button.innerText = "通信中...";
-        
-        fetch(GAS_URL, {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "completeTask", user: currentUser, taskId: taskId, stoneReward: stoneReward })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                fetchAppData();
-            }
-        });
+    async function completeTask(id, stone) {
+        const user = getCurrentUser();
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "completeTask", user: user, taskId: id, stoneReward: stone })
+            });
+            const res = await response.json();
+            if (res.success) { loadData(); }
+        } catch(e) { alert("エラーが発生しました"); }
     }
 
-    // ガチャ実行処理
-    function drawGacha() {
-        if (currentStones < 10) return;
-        const btn = document.getElementById('gachaBtn');
-        btn.disabled = true;
-        document.getElementById('gachaResult').innerText = "🎰 ガチャを回しています...";
-
-        fetch(GAS_URL, {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "drawGacha", user: currentUser })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById('gachaResult').innerText = `🎉 当たった：【${data.rarity}】${data.winName}！`;
-                fetchAppData();
+    // ガチャを回す
+    async function drawGacha() {
+        const user = getCurrentUser();
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "drawGacha", user: user })
+            });
+            const res = await response.json();
+            if (res.success) {
+                alert(`🎰 ガチャ結果 🎰\n\n【${res.rarity}】\n🎉 ${res.winName} が当たりましたわ！！！`);
+                loadData();
             } else {
-                alert(data.message);
-                checkGachaButton();
+                alert(res.message);
             }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("通信失敗。リロードして確認してください。");
-            document.getElementById('gachaResult').innerText = "";
-            checkGachaButton();
-        });
+        } catch(e) { alert("エラーが発生しました"); }
     }
 
-    // ご褒美消費処理
-    function useReward(rewardId) {
-        fetch(GAS_URL, {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "useReward", user: currentUser, rewardId: rewardId })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("ご褒美を消費しました！贅沢を楽しんでね！");
-                fetchAppData();
-            } else {
-                alert(data.message);
-            }
-        });
+    // ご褒美を使う
+    async function useReward(id) {
+        const user = getCurrentUser();
+        if (!confirm("このご褒美を本当に使いますか？ストックが1減ります。")) return;
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "useReward", user: user, rewardId: id })
+            });
+            const res = await response.json();
+            if (res.success) { loadData(); }
+        } catch(e) { alert("エラーが発生しました"); }
     }
 
-    // 毎日リセット処理
-    function resetDailyTasks() {
-        if(!confirm("毎日タスクをすべて未完了に戻しますか？")) return;
-        
-        fetch(GAS_URL, {
-            method: "POST",
-            mode: "cors",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "resetDaily", user: currentUser })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                alert("毎日タスクをリセットしました！");
-                fetchAppData();
-            }
-        });
+    // 毎日タスクリセット
+    async function resetDaily() {
+        const user = getCurrentUser();
+        if (!confirm("今日の『毎日』クエストをすべて未完了に戻しますか？")) return;
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "resetDaily", user: user })
+            });
+            const res = await response.json();
+            if (res.success) { alert("リセットしました！"); loadData(); }
+        } catch(e) { alert("エラーが発生しました"); }
     }
 
-    function checkGachaButton() {
-        const btn = document.getElementById('gachaBtn');
-        btn.disabled = currentStones < 10;
+    // 新機能：タスク追加
+    async function addTask() {
+        const user = getCurrentUser();
+        const name = document.getElementById("newTaskName").value;
+        const reward = document.getElementById("newTaskReward").value;
+        const type = document.getElementById("newTaskType").value;
+
+        if (!name) { alert("クエスト名を入力してちょうだい！"); return; }
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "addTask", user: user, taskName: name, stoneReward: reward, taskType: type })
+            });
+            const res = await response.json();
+            if (res.success) {
+                alert("クエストを追加しましたわ！");
+                document.getElementById("newTaskName").value = "";
+                loadData();
+            }
+        } catch(e) { alert("追加に失敗しました"); }
     }
+
+    // 新機能：ご褒美追加
+    async function addReward() {
+        const user = getCurrentUser();
+        const name = document.getElementById("newRewardName").value;
+        const rarity = document.getElementById("newRewardRarity").value;
+
+        if (!name) { alert("ご褒美の名前を入力してちょうだい！"); return; }
+
+        try {
+            const response = await fetch(GAS_URL, {
+                method: "POST",
+                body: JSON.stringify({ action: "addReward", user: user, rewardName: name, rarity: rarity })
+            });
+            const res = await response.json();
+            if (res.success) {
+                alert("ご褒美の景品を追加しましたわ！");
+                document.getElementById("newRewardName").value = "";
+                loadData();
+            }
+        } catch(e) { alert("追加に失敗しました"); }
+    }
+
+    // 最初の一歩
+    window.onload = loadData;
 </script>
-
 </body>
 </html>
