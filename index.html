@@ -46,6 +46,12 @@
         .form-group label { display: block; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
         .form-group input, .form-group select { width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid var(--border); border-radius: 6px; }
         .hr-divider { border: 0; height: 1px; background: var(--border); margin: 24px 0; }
+        /* 📝 クエスト一覧をスクロールできるようにする設定ですわ！ */
+        #taskList {
+            max-height: 260px;    /* 5個分くらいの高さに制限します */
+            overflow-y: auto;     /* 縦方向にはみ出したら自動でスクロールバーを出します */
+            padding-right: 5px;   /* スクロールバーと文字が重ならないための隙間です */
+        }
     </style>
 </head>
 <body>
@@ -57,8 +63,8 @@
     <div class="card flex-between">
         <div class="user-selector">
             <select id="userSelect" onchange="loadData()">
-                <option value="user1">ユーザー 1</option>
-                <option value="user2">ユーザー 2</option>
+                <option value="user1">やす</option>
+                <option value="user2">りか</option>
             </select>
         </div>
         <div class="stone-display">💎 所持石: <span id="stoneCount">0</span> 個</div>
@@ -193,7 +199,7 @@
     }
 
     // タスク完了処理
-    async function completeTask(id, stone) {
+    async function completeTask(id, stone) {あ
         const user = getCurrentUser();
         try {
             const response = await fetch(GAS_URL, {
